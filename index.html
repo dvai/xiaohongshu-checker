@@ -8,26 +8,25 @@
   </head>
   <body>
     <main class="shell">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Xiaohongshu Compliance Checker</p>
-          <h1>小红书违规词检测工具</h1>
-          <p class="hero-text">
-            粘贴正文，快速查看风险词、高亮命中和润色结果。
-          </p>
-          <div class="hero-meta" id="heroMeta"></div>
+      <header class="topbar">
+        <div class="topbar-main">
+          <p class="eyebrow">Compliance Workspace</p>
+          <h1>小红书违规词检测</h1>
+          <p class="topbar-text">输入正文，右侧即时查看高亮命中，下方查看分类详情。</p>
         </div>
-        <div class="hero-panel">
-          <div class="status-card">
-            <span class="status-label">当前词库版本</span>
+        <div class="topbar-stats">
+          <div class="stat-card">
+            <span>词库版本</span>
             <strong id="bankVersion">-</strong>
           </div>
-          <div class="status-card">
-            <span class="status-label">规则总数</span>
+          <div class="stat-card">
+            <span>规则总数</span>
             <strong id="ruleCount">-</strong>
           </div>
         </div>
-      </section>
+      </header>
+
+      <section class="meta-row" id="heroMeta"></section>
 
       <section class="compare-workspace">
         <div class="panel input-panel">
@@ -37,10 +36,9 @@
               <p>支持正文、标题草稿、评论回复。</p>
             </div>
             <div class="actions">
-              <button type="button" class="ghost" id="fillExample">示例内容</button>
-              <button type="button" class="ghost" id="clearText">清空</button>
-              <button type="button" class="ghost" id="runPolish">一键润色</button>
-              <button type="button" class="primary" id="runCheck">开始检测</button>
+              <button type="button" class="button secondary" id="fillExample">示例内容</button>
+              <button type="button" class="button secondary" id="clearText">清空</button>
+              <button type="button" class="button primary" id="runCheck">立即检测</button>
             </div>
           </div>
 
@@ -54,19 +52,19 @@
 
           <div class="panel-footer">
             <span id="textCounter">0 字</span>
-            <span>检测逻辑包含关键词命中、变体写法、正则规则和自定义词库。</span>
+            <span>输入后会自动刷新检测结果。</span>
           </div>
         </div>
 
         <div class="panel result-panel">
-          <div class="panel-header compact">
+          <div class="panel-header">
             <div>
               <h2>高亮预览</h2>
-              <p>右侧即时查看命中内容。</p>
+              <p>与左侧正文滚动同步，方便逐段对照。</p>
             </div>
           </div>
           <div class="highlight-box" id="highlightBox">
-            暂无内容，请先输入正文并点击“开始检测”。
+            暂无内容，请先输入正文并点击“立即检测”。
           </div>
         </div>
       </section>
@@ -77,7 +75,7 @@
             <div class="panel-header compact">
               <div>
                 <h2>检测概览</h2>
-                <p>先看风险，再逐项处理。</p>
+                <p>先看整体风险，再处理命中项。</p>
               </div>
             </div>
             <div class="summary-grid" id="summaryGrid"></div>
@@ -87,9 +85,9 @@
             <div class="panel-header compact">
               <div>
                 <h2>自定义词库</h2>
-                <p>每行一个词，自动本地保存。</p>
+                <p>每行一个词，自动保存在本地。</p>
               </div>
-              <button type="button" class="ghost" id="saveCustomWords">保存</button>
+              <button type="button" class="button secondary" id="saveCustomWords">保存</button>
             </div>
             <label class="field">
               <span>补充你的专属敏感词</span>
@@ -104,34 +102,17 @@
         </aside>
 
         <section class="results">
-          <div class="result-switcher" id="resultSwitcher">
-            <button type="button" class="switcher-btn active" data-view="detail">命中详情</button>
-            <button type="button" class="switcher-btn" data-view="polish">自动润色</button>
-          </div>
-
-          <div class="panel detail-panel" data-panel="detail">
+          <div class="panel detail-panel">
             <div class="panel-header compact">
               <div>
                 <h2>命中详情</h2>
                 <p>按风险等级和分类展示。</p>
               </div>
-              <button type="button" class="ghost" id="copyHits">复制命中词</button>
+              <button type="button" class="button secondary" id="copyHits">复制命中词</button>
             </div>
             <div class="detail-list" id="detailList">
               <div class="empty-state">还没有检测结果。</div>
             </div>
-          </div>
-
-          <div class="panel polish-panel is-hidden" data-panel="polish">
-            <div class="panel-header compact">
-              <div>
-                <h2>自动润色</h2>
-                <p>生成一版更稳妥的草稿。</p>
-              </div>
-              <button type="button" class="ghost" id="copyPolished">复制润色稿</button>
-            </div>
-            <div class="rewrite-meta" id="rewriteMeta">还没有生成润色稿。</div>
-            <div class="polish-box" id="polishBox">暂无内容。</div>
           </div>
         </section>
       </section>

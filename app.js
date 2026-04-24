@@ -8,10 +8,7 @@
     contentInput: document.getElementById("contentInput"),
     customWords: document.getElementById("customWords"),
     highlightBox: document.getElementById("highlightBox"),
-    resultSwitcher: document.getElementById("resultSwitcher"),
     detailList: document.getElementById("detailList"),
-    polishBox: document.getElementById("polishBox"),
-    rewriteMeta: document.getElementById("rewriteMeta"),
     summaryGrid: document.getElementById("summaryGrid"),
     textCounter: document.getElementById("textCounter"),
     bankVersion: document.getElementById("bankVersion"),
@@ -20,65 +17,14 @@
     customHint: document.getElementById("customHint"),
     fillExample: document.getElementById("fillExample"),
     clearText: document.getElementById("clearText"),
-    runPolish: document.getElementById("runPolish"),
     runCheck: document.getElementById("runCheck"),
     saveCustomWords: document.getElementById("saveCustomWords"),
-    copyHits: document.getElementById("copyHits"),
-    copyPolished: document.getElementById("copyPolished")
+    copyHits: document.getElementById("copyHits")
   };
 
   const state = {
-    activeResultView: "detail",
     autoDetectTimer: null,
     syncingScroll: false
-  };
-
-  const EXACT_REPLACEMENTS = {
-    "全网第一": "更受欢迎",
-    "全国第一": "表现比较突出",
-    "中国第一": "表现比较突出",
-    "第一品牌": "较受欢迎",
-    "销量第一": "销量表现较突出",
-    "最佳": "更合适",
-    "最好": "更适合",
-    "最优": "更优选",
-    "顶级": "高品质",
-    "遥遥领先": "表现突出",
-    "全网最低价": "价格有参考空间",
-    "100%有效": "效果因人而异",
-    "100 %有效": "效果因人而异",
-    "无副作用": "体验感受因人而异",
-    "零风险": "建议理性判断",
-    "0风险": "建议理性判断",
-    "月入过万": "有机会带来额外收入",
-    "日入过千": "有机会获得收入",
-    "加微信": "欢迎站内交流",
-    "微信联系": "欢迎站内交流",
-    "加微": "欢迎站内交流",
-    "加v": "欢迎站内交流",
-    "加vx": "欢迎站内交流",
-    "微信号": "站内沟通方式",
-    "QQ号": "站内沟通方式",
-    "QQ群": "站内交流群",
-    "vx": "站内交流",
-    "私域": "站内咨询",
-    "增强免疫力": "日常营养补充",
-    "提高免疫力": "日常营养补充",
-    "提升免疫力": "日常营养补充",
-    "减肥": "饮食管理参考",
-    "瘦身": "体态管理参考",
-    "祛痘": "清洁护理",
-    "美白祛斑": "提亮肤感",
-    "淡斑": "匀净肤感",
-    "防脱发": "头发护理",
-    "改善睡眠": "睡前放松体验",
-    "帮助睡眠": "睡前放松体验",
-    "治疗": "护理",
-    "医疗": "护理",
-    "药用": "配方相关",
-    "药物": "成分相关",
-    "美白针": "相关项目",
-    "水光针": "相关项目"
   };
 
   function escapeHtml(value) {
@@ -211,22 +157,14 @@
       }
     });
 
-    const deduped = Array.from(
+    return Array.from(
       new Map(
         matches.map((item) => [
-          [
-            item.start,
-            item.end,
-            item.categoryId,
-            item.label,
-            item.matchedText
-          ].join(":"),
+          [item.start, item.end, item.categoryId, item.label, item.matchedText].join(":"),
           item
         ])
       ).values()
-    );
-
-    return deduped.sort((left, right) => {
+    ).sort((left, right) => {
       if (left.start !== right.start) {
         return left.start - right.start;
       }
@@ -297,184 +235,7 @@
     const text = elements.contentInput.value;
     const customWords = normalizeCustomWords(elements.customWords.value);
     const matches = runDetection(text, customWords);
-    return { text, customWords, matches };
-  }
-
-  function fallbackReplacement(match) {
-    const { categoryId, matchedText } = match;
-
-    if (EXACT_REPLACEMENTS[matchedText]) {
-      return EXACT_REPLACEMENTS[matchedText];
-    }
-
-    if (categoryId === "absolute_terms") {
-      if (/(第一|NO\.?1|TOP\.?1)/iu.test(matchedText)) {
-        return "表现比较突出";
-      }
-
-      if (/(最低价|最便宜|亏本价)/u.test(matchedText)) {
-        return "价格有参考空间";
-      }
-
-      if (/(首发|首创|首款|首个|首家)/u.test(matchedText)) {
-        return "较早推出";
-      }
-
-      if (/(永久|唯一|独家|无敌|绝对|完美)/u.test(matchedText)) {
-        return "更贴近实际体验";
-      }
-
-      if (matchedText === "最") {
-        return "更";
-      }
-
-      return "表现不错";
-    }
-
-    if (categoryId === "medical_health") {
-      if (/(安全|无痛)/u.test(matchedText)) {
-        return "体验感受因人而异";
-      }
-
-      if (/(推荐官|体验官)/u.test(matchedText)) {
-        return "体验分享";
-      }
-
-      if (/(针|注射|手术|治疗|医疗|医治|药)/u.test(matchedText)) {
-        return "相关护理";
-      }
-
-      return "相关体验";
-    }
-
-    if (categoryId === "food_claims") {
-      if (/(减肥|瘦身|减脂|塑形|塑身|瘦腿|瘦肚|减腹)/u.test(matchedText)) {
-        return "体态管理参考";
-      }
-
-      if (/(免疫|抵抗力|记忆力)/u.test(matchedText)) {
-        return "日常营养补充";
-      }
-
-      if (/(睡眠|失眠)/u.test(matchedText)) {
-        return "睡前放松体验";
-      }
-
-      if (/(护肝|保肝|养肝|胃|肠道|通便|便秘|补血)/u.test(matchedText)) {
-        return "日常饮食搭配";
-      }
-
-      return "日常营养搭配";
-    }
-
-    if (categoryId === "cosmetic_claims") {
-      if (/(美白|斑|焕白|嫩白|增白|亮白|变白)/u.test(matchedText)) {
-        return "提亮肤感";
-      }
-
-      if (/(育发|固发|防脱发|掉发|发量)/u.test(matchedText)) {
-        return "头发护理";
-      }
-
-      if (/(除臭|异味|狐臭|腋臭)/u.test(matchedText)) {
-        return "清新气味体验";
-      }
-
-      return "基础护理";
-    }
-
-    if (categoryId === "guarantee_terms") {
-      if (/(退款|售后)/u.test(matchedText)) {
-        return "具体售后以平台规则为准";
-      }
-
-      if (/(见效|生效|解决)/u.test(matchedText)) {
-        return "感受因人而异";
-      }
-
-      if (/(无副作用|无风险|不反弹|不复发)/u.test(matchedText)) {
-        return "建议结合个人情况判断";
-      }
-
-      return "具体情况因人而异";
-    }
-
-    if (categoryId === "finance_terms") {
-      if (/(月入|日入|年入|收益|回报|升值)/u.test(matchedText)) {
-        return "仅作经验分享";
-      }
-
-      return "理性判断";
-    }
-
-    if (categoryId === "contact_diversion") {
-      if (/(淘宝|闲鱼|抖音|拼多多|京东|链接|外链|平台外)/u.test(matchedText)) {
-        return "可在平台内继续了解";
-      }
-
-      return "欢迎站内交流";
-    }
-
-    if (categoryId === "gray_illegal") {
-      return "合规信息";
-    }
-
-    if (categoryId === "superstition") {
-      if (/(风水|算命|八字|塔罗|占卜|开光|佛牌)/u.test(matchedText)) {
-        return "传统文化话题";
-      }
-
-      return "美好寓意";
-    }
-
-    return "更中性的表达";
-  }
-
-  function buildPolishResult(text, matches) {
-    if (!text.trim()) {
-      return {
-        polishedText: "",
-        appliedMatches: [],
-        totalEdits: 0
-      };
-    }
-
-    const appliedMatches = pickHighlightMatches(matches).map((match) => ({
-      ...match,
-      replacement: fallbackReplacement(match)
-    }));
-
-    let cursor = 0;
-    const chunks = [];
-
-    appliedMatches.forEach((match) => {
-      chunks.push(text.slice(cursor, match.start));
-      chunks.push(match.replacement);
-      cursor = match.end;
-    });
-
-    chunks.push(text.slice(cursor));
-
-    const polishedText = chunks
-      .join("")
-      .replace(/(欢迎站内交流|站内交流|站内沟通方式)\s*[:：]?\s*[a-zA-Z0-9_-]{3,}/gu, "欢迎站内交流")
-      .replace(/(欢迎站内交流)\s+(站内交流|站内沟通方式)/gu, "$1")
-      .replace(/(欢迎站内交流)\s*[，,]?\s*(欢迎站内交流)/gu, "$1")
-      .replace(/\b1[3-9][0-9]{9}\b/gu, "欢迎站内交流")
-      .replace(/(?:联系|加|咨询)\s*欢迎站内交流/gu, "欢迎站内交流")
-      .replace(/或者\s*欢迎站内交流/gu, "欢迎站内交流")
-      .replace(/(欢迎站内交流)\s*[，,]?\s*(欢迎站内交流)/gu, "$1")
-      .replace(/[ \t]+/g, " ")
-      .replace(/\n{3,}/g, "\n\n")
-      .replace(/\s+([，。！？；：,.!?;:])/g, "$1")
-      .replace(/([，。！？；：,.!?;:]){2,}/g, "$1")
-      .trim();
-
-    return {
-      polishedText,
-      appliedMatches,
-      totalEdits: appliedMatches.length
-    };
+    return { text, matches };
   }
 
   function renderSummary(matches) {
@@ -521,7 +282,7 @@
 
   function renderHighlights(text, matches) {
     if (!text.trim()) {
-      elements.highlightBox.textContent = "暂无内容，请先输入正文并点击“开始检测”。";
+      elements.highlightBox.textContent = "暂无内容，请先输入正文并点击“立即检测”。";
       return;
     }
 
@@ -546,38 +307,6 @@
 
     chunks.push(escapeHtml(text.slice(cursor)));
     elements.highlightBox.innerHTML = chunks.join("");
-  }
-
-  function setActiveResultView(view) {
-    state.activeResultView = view;
-
-    elements.resultSwitcher.querySelectorAll("[data-view]").forEach((button) => {
-      button.classList.toggle("active", button.dataset.view === view);
-    });
-
-    document.querySelectorAll("[data-panel]").forEach((panel) => {
-      panel.classList.toggle("is-hidden", panel.dataset.panel !== view);
-    });
-  }
-
-  function syncScrollBetween(source, target) {
-    if (state.syncingScroll) {
-      return;
-    }
-
-    const sourceMax = source.scrollHeight - source.clientHeight;
-    const targetMax = target.scrollHeight - target.clientHeight;
-
-    if (sourceMax <= 0 || targetMax <= 0) {
-      target.scrollTop = 0;
-      return;
-    }
-
-    state.syncingScroll = true;
-    target.scrollTop = (source.scrollTop / sourceMax) * targetMax;
-    requestAnimationFrame(() => {
-      state.syncingScroll = false;
-    });
   }
 
   function renderDetails(matches, text) {
@@ -615,33 +344,36 @@
       .join("");
   }
 
-  function renderPolish(text, matches) {
-    if (!text.trim()) {
-      elements.rewriteMeta.textContent = "还没有生成润色稿。";
-      elements.polishBox.textContent = "暂无内容。";
+  function syncScrollBetween(source, target) {
+    if (state.syncingScroll) {
       return;
     }
 
-    const result = buildPolishResult(text, matches);
+    const sourceMax = source.scrollHeight - source.clientHeight;
+    const targetMax = target.scrollHeight - target.clientHeight;
 
-    if (!matches.length) {
-      elements.rewriteMeta.textContent = "未发现明显违规词，原文已经比较稳妥。";
-      elements.polishBox.textContent = text;
+    if (sourceMax <= 0 || targetMax <= 0) {
+      target.scrollTop = 0;
       return;
     }
 
-    const uniqueCategories = new Set(result.appliedMatches.map((item) => item.categoryLabel)).size;
-    elements.rewriteMeta.textContent = `已自动处理 ${result.totalEdits} 处命中，覆盖 ${uniqueCategories} 类风险。建议把这版当作草稿，再人工顺一遍语气。`;
-    elements.polishBox.textContent = result.polishedText;
+    state.syncingScroll = true;
+    target.scrollTop = (source.scrollTop / sourceMax) * targetMax;
+    const releaseSync =
+      window.requestAnimationFrame ||
+      function (callback) {
+        return window.setTimeout(callback, 16);
+      };
+    releaseSync(() => {
+      state.syncingScroll = false;
+    });
   }
 
   function detectNow() {
     const { text, matches } = getDetectionResult();
-
     renderSummary(matches);
     renderHighlights(text, matches);
     renderDetails(matches, text);
-    renderPolish(text, matches);
     syncScrollBetween(elements.contentInput, elements.highlightBox);
   }
 
@@ -667,7 +399,7 @@
       `词库分类 ${categoryCount} 类`,
       `基础规则 ${keywordCount} 条`,
       "支持自定义词库",
-      "支持原文高亮预览"
+      "支持左右对照预览"
     ]
       .map((item) => `<span class="meta-pill">${escapeHtml(item)}</span>`)
       .join("");
@@ -693,25 +425,6 @@
     );
   }
 
-  function copyPolishedText() {
-    const { text, matches } = getDetectionResult();
-    const result = buildPolishResult(text, matches);
-
-    if (!result.polishedText) {
-      elements.customHint.textContent = "没有可复制的润色稿";
-      return;
-    }
-
-    navigator.clipboard.writeText(result.polishedText).then(
-      () => {
-        elements.customHint.textContent = "润色稿已复制";
-      },
-      () => {
-        elements.customHint.textContent = "复制失败，请手动复制";
-      }
-    );
-  }
-
   function bindEvents() {
     elements.contentInput.addEventListener("input", () => {
       updateTextCounter();
@@ -724,10 +437,6 @@
       syncScrollBetween(elements.highlightBox, elements.contentInput);
     });
     elements.runCheck.addEventListener("click", detectNow);
-    elements.runPolish.addEventListener("click", () => {
-      detectNow();
-      setActiveResultView("polish");
-    });
     elements.fillExample.addEventListener("click", () => {
       elements.contentInput.value = EXAMPLE_TEXT;
       updateTextCounter();
@@ -743,16 +452,6 @@
       detectNow();
     });
     elements.copyHits.addEventListener("click", copyHitWords);
-    elements.copyPolished.addEventListener("click", copyPolishedText);
-    elements.resultSwitcher.addEventListener("click", (event) => {
-      const target = event.target.closest("[data-view]");
-
-      if (!target) {
-        return;
-      }
-
-      setActiveResultView(target.dataset.view);
-    });
   }
 
   function init() {
@@ -765,8 +464,6 @@
     renderMeta();
     renderSummary([]);
     updateTextCounter();
-    renderPolish("", []);
-    setActiveResultView(state.activeResultView);
     bindEvents();
   }
 
